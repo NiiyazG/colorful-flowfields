@@ -3,17 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>🐉 Cute Dragon</title>
+  <title>🐉 Cute Dragon Flow</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
       background: linear-gradient(180deg, #1a0a2e, #2d1b4e);
       min-height: 100vh;
       overflow: hidden;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-family: 'Comic Sans MS', cursive;
     }
     canvas { display: block; }
   </style>
@@ -21,153 +17,136 @@
 <body>
   <script src="https://cdn.jsdelivr.net/npm/p5@1.9.0/lib/p5.min.js"></script>
   <script>
+    let particles = [];
     let t = 0;
-    let dragonX, dragonY;
     
     function setup() {
       createCanvas(windowWidth, windowHeight);
-      dragonX = width / 2;
-      dragonY = height / 2;
+      
+      // Create particles in dragon silhouette
+      // Body
+      for (let i = 0; i < 150; i++) {
+        const angle = random(TWO_PI);
+        const r = random(0, 80);
+        particles.push(createParticle(0, 20, r * cos(angle), r * sin(angle), [100, 220, 180]));
+      }
+      // Head
+      for (let i = 0; i < 80; i++) {
+        const angle = random(TWO_PI);
+        const r = random(0, 35);
+        particles.push(createParticle(0, -35, r * cos(angle), r * sin(angle), [100, 220, 180]));
+      }
+      // Snout
+      for (let i = 0; i < 30; i++) {
+        const angle = random(-0.5, 0.5);
+        const r = random(0, 15);
+        particles.push(createParticle(15, -20, r * cos(angle), r * sin(angle), [120, 230, 190]));
+      }
+      // Eyes
+      for (let i = 0; i < 20; i++) {
+        particles.push(createParticle(-15 + random(-3,3), -35 + random(-3,3), 0, 0, [30, 30, 60]));
+        particles.push(createParticle(15 + random(-3,3), -35 + random(-3,3), 0, 0, [30, 30, 60]));
+        // Eye shine
+        particles.push(createParticle(-17 + random(-2,2), -37 + random(-2,2), 0, 0, [255, 255, 255]));
+        particles.push(createParticle(13 + random(-2,2), -37 + random(-2,2), 0, 0, [255, 255, 255]));
+      }
+      // Blush
+      for (let i = 0; i < 10; i++) {
+        particles.push(createParticle(-28 + random(-4,4), -25 + random(-2,2), 0, 0, [255, 150, 150]));
+        particles.push(createParticle(28 + random(-4,4), -25 + random(-2,2), 0, 0, [255, 150, 150]));
+      }
+      // Horns
+      for (let i = 0; i < 15; i++) {
+        particles.push(createParticle(-20 - i * 2, -60 + i * 2, 0, 0, [180, 140, 220]));
+        particles.push(createParticle(20 + i * 2, -60 + i * 2, 0, 0, [180, 140, 220]));
+      }
+      // Wings
+      for (let i = 0; i < 25; i++) {
+        particles.push(createParticle(-35 - i * 3, -10 + i, random(-2, 2), random(-1, 1), [150, 220, 255]));
+        particles.push(createParticle(35 + i * 3, -10 + i, random(-2, 2), random(-1, 1), [150, 220, 255]));
+      }
+      // Tail
+      for (let i = 0; i < 40; i++) {
+        particles.push(createParticle(-30 - i * 3, 40 + i * 2, 0, 0, [120, 200, 180]));
+      }
+      // Feet
+      for (let i = 0; i < 20; i++) {
+        particles.push(createParticle(-25, 65, random(-5, 5), random(-2, 2), [100, 200, 170]));
+        particles.push(createParticle(25, 65, random(-5, 5), random(-2, 2), [100, 200, 170]));
+      }
+      // Belly
+      for (let i = 0; i < 40; i++) {
+        const angle = random(TWO_PI);
+        const r = random(0, 25);
+        particles.push(createParticle(0, 25, r * cos(angle), r * sin(angle), [180, 255, 220]));
+      }
+    }
+    
+    function createParticle(bx, by, ox, oy, col) {
+      return {
+        baseX: bx,
+        baseY: by,
+        offsetX: ox,
+        offsetY: oy,
+        x: bx + ox,
+        y: by + oy,
+        col: col,
+        size: random(4, 8),
+        phase: random(TWO_PI),
+        vx: random(-0.5, 0.5),
+        vy: random(-0.5, 0.5)
+      };
     }
     
     function draw() {
-      // Soft background glow
-      background(26, 10, 46);
-      
-      // Ambient particles
-      for (let i = 0; i < 20; i++) {
-        const px = (sin(t * 0.5 + i * 2.1) * 0.4 + 0.5) * width;
-        const py = (cos(t * 0.3 + i * 1.7) * 0.4 + 0.5) * height;
-        fill(150, 100, 200, 50 + 30 * sin(t + i));
-        noStroke();
-        ellipse(px, py, 3 + sin(t + i) * 2, 3 + sin(t + i) * 2);
-      }
+      background(26, 10, 46, 40);
       
       t += 0.03;
-      
-      // Bounce animation
       const bounce = sin(t * 2) * 15;
-      const breathe = sin(t) * 5;
       
-      push();
-      translate(dragonX, dragonY + bounce);
-      
-      // Tail
-      noStroke();
-      fill(120, 200, 180, 200);
-      for (let i = 0; i < 8; i++) {
-        const ty = 60 + i * 12;
-        const tx = sin(t * 2 + i * 0.5) * 15;
-        ellipse(-30 + tx, ty, 20 - i, 15 - i);
+      for (let p of particles) {
+        // Gentle float movement
+        p.vx += noise(p.x * 0.01, t, p.phase) - 0.5;
+        p.vy += noise(p.y * 0.01, t + 100, p.phase) - 0.5;
+        p.vx *= 0.95;
+        p.vy *= 0.95;
+        
+        // Return to base with bounce
+        const targetX = (width / 2) + p.baseX + p.offsetX;
+        const targetY = (height / 2) + p.baseY + p.offsetY + bounce;
+        
+        p.vx += (targetX - p.x) * 0.02;
+        p.vy += (targetY - p.y) * 0.02;
+        
+        p.x += p.vx;
+        p.y += p.vy;
+        
+        // Pulsing size
+        const size = p.size * (0.8 + 0.4 * sin(t * 3 + p.phase));
+        
+        // Draw glow
+        fill(p.col[0], p.col[1], p.col[2], 180);
+        noStroke();
+        ellipse(p.x, p.y, size + 3, size + 3);
+        
+        // Draw point
+        fill(p.col[0], p.col[1], p.col[2], 255);
+        ellipse(p.x, p.y, size, size);
       }
-      
-      // Body
-      fill(100, 220, 180);
-      ellipse(0, 20, 90 + breathe, 80 + breathe);
-      
-      // Belly (lighter)
-      fill(180, 255, 220, 180);
-      ellipse(0, 25, 50, 45);
-      
-      // Wings (cute small)
-      fill(150, 220, 255, 180);
-      // Left wing
-      push();
-      translate(-35, -10);
-      rotate(sin(t * 2) * 0.2 - 0.3);
-      ellipse(0, 0, 40, 25);
-      pop();
-      // Right wing
-      push();
-      translate(35, -10);
-      rotate(-sin(t * 2) * 0.2 + 0.3);
-      ellipse(0, 0, 40, 25);
-      pop();
-      
-      // Head
-      fill(100, 220, 180);
-      ellipse(0, -35, 70, 65);
-      
-      // Snout (cute round)
-      fill(120, 230, 190);
-      ellipse(0, -15, 30, 25);
-      
-      // Nostrils
-      fill(80, 180, 140);
-      ellipse(-6, -12, 4, 3);
-      ellipse(6, -12, 4, 3);
-      
-      // Eyes (BIG and cute)
-      fill(255);
-      ellipse(-15, -35, 20, 22);
-      ellipse(15, -35, 20, 22);
-      
-      // Pupils
-      fill(30, 30, 60);
-      ellipse(-15 + sin(t * 0.5) * 2, -35, 10, 12);
-      ellipse(15 + sin(t * 0.5) * 2, -35, 10, 12);
-      
-      // Eye shine
-      fill(255);
-      ellipse(-17, -38, 5, 5);
-      ellipse(13, -38, 5, 5);
-      
-      // Blush
-      fill(255, 150, 150, 150);
-      ellipse(-28, -25, 12, 8);
-      ellipse(28, -25, 12, 8);
-      
-      // Horns
-      fill(180, 140, 220);
-      // Left horn
-      push();
-      translate(-20, -65);
-      rotate(-0.4);
-      ellipse(0, 0, 15, 25);
-      pop();
-      // Right horn
-      push();
-      translate(20, -65);
-      rotate(0.4);
-      ellipse(0, 0, 15, 25);
-      pop();
-      
-      // Spikes on back
-      fill(150, 180, 220);
-      for (let i = 0; i < 5; i++) {
-        const sx = sin(t * 2 + i * 0.4) * 3;
-        ellipse(-30 + i * 15 + sx, -25, 10, 8);
-      }
-      
-      // Feet
-      fill(100, 200, 170);
-      ellipse(-25, 65, 25, 20);
-      ellipse(25, 65, 25, 20);
-      
-      // Toe beans (super cute)
-      fill(180, 230, 200);
-      for (let i = -1; i <= 1; i++) {
-        ellipse(-25 + i * 6, 72, 6, 4);
-        ellipse(25 + i * 6, 72, 6, 4);
-      }
-      
-      pop();
       
       // Sparkles around
-      for (let i = 0; i < 6; i++) {
-        const angle = t + i * 1.2;
-        const dist = 100 + sin(t * 2 + i) * 20;
-        const sx = dragonX + cos(angle) * dist;
-        const sy = dragonY + sin(angle) * dist + bounce;
-        fill(255, 255, 200, 150);
-        ellipse(sx, sy, 4, 4);
+      for (let i = 0; i < 8; i++) {
+        const angle = t + i * 0.8;
+        const dist = 120 + sin(t * 2 + i) * 30;
+        const sx = width / 2 + cos(angle) * dist;
+        const sy = height / 2 + sin(angle) * dist + bounce;
+        fill(255, 255, 200, 150 + 100 * sin(t + i));
+        ellipse(sx, sy, 3, 3);
       }
     }
     
     function windowResized() {
       resizeCanvas(windowWidth, windowHeight);
-      dragonX = width / 2;
-      dragonY = height / 2;
     }
   </script>
 </body>
