@@ -3,91 +3,150 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Flow Field Art</title>
+  <title>✨ Colorful Flow Field ✨</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
-      background: #0a0a0f;
+      background: #050508;
       min-height: 100vh;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      font-family: 'Courier New', monospace;
+      font-family: 'Segoe UI', system-ui, sans-serif;
       overflow: hidden;
     }
     h1 {
-      color: #ff6b9d;
-      font-size: 1.8rem;
+      background: linear-gradient(90deg, #ff6b9d, #ffd93d, #6bcb77, #4d96ff, #00fff5);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      font-size: 2rem;
       margin-bottom: 1rem;
-      text-shadow: 0 0 20px #ff6b9d, 0 0 40px #ff6b9d55;
-      letter-spacing: 0.3em;
+      letter-spacing: 0.2em;
+      animation: glow 2s ease-in-out infinite alternate;
+    }
+    @keyframes glow {
+      from { filter: drop-shadow(0 0 10px #ff6b9d55); }
+      to { filter: drop-shadow(0 0 25px #00fff588); }
     }
     canvas {
-      border-radius: 12px;
-      box-shadow: 0 0 60px rgba(255,107,157,0.3), inset 0 0 60px rgba(0,0,0,0.5);
+      border-radius: 16px;
+      box-shadow: 
+        0 0 80px rgba(255,107,157,0.2),
+        0 0 160px rgba(0,255,245,0.1),
+        inset 0 0 100px rgba(0,0,0,0.4);
     }
-    .controls { margin-top: 1rem; display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; }
+    .controls { margin-top: 1.5rem; display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; }
     button {
-      background: linear-gradient(135deg, #1a1a2e, #16213e);
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
       color: #00fff5;
-      border: 1px solid #00fff555;
-      padding: 0.6rem 1.2rem;
-      border-radius: 6px;
+      border: 1px solid #00fff533;
+      padding: 0.7rem 1.5rem;
+      border-radius: 8px;
       cursor: pointer;
       font-family: inherit;
+      font-size: 0.9rem;
       transition: all 0.3s;
+      backdrop-filter: blur(10px);
     }
     button:hover {
       background: linear-gradient(135deg, #ff6b9d, #c44569);
       color: #fff;
-      box-shadow: 0 0 20px #ff6b9d88;
+      box-shadow: 0 0 30px #ff6b9d66;
+      transform: translateY(-2px);
     }
   </style>
 </head>
 <body>
-  <h1>✨ FLOW FIELD ✨</h1>
+  <h1>🌈 FLOW FIELD ART 🌈</h1>
   <canvas></canvas>
   <div class="controls">
     <button onclick="reset()">🔄 Reset</button>
     <button onclick="toggle()">⏸ Pause</button>
+    <button onclick="speedUp()">⚡ Faster</button>
+    <button onclick="speedDown()">🐢 Slower</button>
   </div>
   <script>
     const canvas = document.querySelector('canvas');
     const ctx = canvas.getContext('2d');
-    const w = 600, h = 600;
+    const w = 700, h = 700;
     canvas.width = w; canvas.height = h;
-    let t = 0, running = true;
-    const colors = ['#ff6b9d','#c44569','#ffd93d','#6bcb77','#4d96ff','#00fff5','#ff9f43'];
-    const a = (x, y, o = 2 - Math.abs(Math.sin(k = x / 10 - 15)) * Math.cos(e = y / 10 - 12) * 1.2) => {
-      const d = -4 * Math.abs(Math.sin(k / 2) * Math.cos(e * 0.5));
+    
+    let t = 0, speed = 1, running = true;
+    
+    // Richer colorful palette
+    const colors = [
+      '#ff6b9d', '#c44569', '#ffd93d', '#f9ca24',
+      '#6bcb77', '#26de81', '#4d96ff', '#3867d6',
+      '#00fff5', '#a55eea', '#ff9f43', '#ee5a24'
+    ];
+    
+    // Improved flow field math - similar to original but enhanced
+    const flow = (x, y) => {
+      const k = x / 10 - 15 + Math.sin(t * 0.3);
+      const e = y / 10 - 12 + Math.cos(t * 0.2);
+      const o = 2 - Math.abs(Math.sin(k) * Math.cos(e)) * 1.5;
+      const d = -5 * Math.abs(Math.sin(k / 2) * Math.cos(e * 0.6));
+      
       return [
-        (x + e * Math.cos(t) + d * k * Math.sin(d + t)) * 0.6 + k * o + w / 2,
-        (y - d * o * 8 + y * e / 18 + d * e * Math.cos(d + t)) * 0.6 + e * o + h / 2
+        (x + e * Math.cos(t) + d * k * Math.sin(d + t)) * 0.65 + k * o + w / 2,
+        (y - d * o * 9 + y * e / 19 + d * e * Math.cos(d + t)) * 0.65 + e * o + h / 2
       ];
     };
+    
     function draw() {
       if (!running) return;
-      ctx.fillStyle = 'rgba(10,10,15,0.03)';
+      ctx.fillStyle = 'rgba(5,5,8,0.05)';
       ctx.fillRect(0, 0, w, h);
-      t += Math.PI / 90;
-      for (let i = 3500; i--;) {
-        const x = i % w, y = i / w * 20;
-        const [nx, ny] = a(x, y);
-        if (nx > 0 && nx < w && ny > 0 && ny < h) {
+      t += Math.PI / 90 * speed;
+      
+      const particles = 4000;
+      for (let i = particles; i--;) {
+        const x = (i % w) * 0.9 + 30;
+        const y = (i / w * 18) + 30;
+        const [nx, ny] = flow(x, y);
+        
+        if (nx > 10 && nx < w - 10 && ny > 10 && ny < h - 10) {
           ctx.beginPath();
-          ctx.strokeStyle = colors[Math.floor(i / 500) % colors.length];
-          ctx.lineWidth = 0.8;
-          ctx.globalAlpha = 0.7;
+          // Cycle through colors based on position and time
+          ctx.strokeStyle = colors[Math.floor((i + t * 50) / 300) % colors.length];
+          ctx.lineWidth = 0.7 + Math.random() * 0.5;
+          ctx.globalAlpha = 0.5 + Math.random() * 0.4;
           ctx.moveTo(x, y);
           ctx.lineTo(nx, ny);
           ctx.stroke();
         }
       }
+      
+      // Add some glowing dots occasionally
+      if (Math.random() > 0.92) {
+        const x = Math.random() * w;
+        const y = Math.random() * h;
+        ctx.beginPath();
+        ctx.fillStyle = colors[Math.floor(Math.random() * colors.length)];
+        ctx.globalAlpha = 0.8;
+        ctx.arc(x, y, 2 + Math.random() * 3, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      
       requestAnimationFrame(draw);
     }
-    function reset() { ctx.fillStyle = '#0a0a0f'; ctx.fillRect(0, 0, w, h); t = 0; }
-    function toggle() { running = !running; if (running) draw(); }
+    
+    function reset() {
+      ctx.fillStyle = '#050508';
+      ctx.fillRect(0, 0, w, h);
+      t = 0;
+    }
+    
+    function toggle() {
+      running = !running;
+      if (running) draw();
+    }
+    
+    function speedUp() { speed = Math.min(speed + 0.5, 3); }
+    function speedDown() { speed = Math.max(speed - 0.5, 0.3); }
+    
     reset(); draw();
   </script>
 </body>
