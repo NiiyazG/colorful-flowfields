@@ -3,13 +3,16 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dragon Flow</title>
+  <title>🐉 Dragon Flow</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
-      background: linear-gradient(180deg, #0a0a15, #1a0a2e, #0f0520);
+      background: #050510;
       min-height: 100vh;
       overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
     canvas { display: block; }
   </style>
@@ -19,140 +22,110 @@
   <script>
     let t = 0;
     
-    // Dragon silhouette (simplified Chinese dragon)
-    const dragon = [
-      // Head
-      [0.15, 0.35], [0.18, 0.32], [0.22, 0.3], [0.25, 0.28], [0.28, 0.26],
-      // Snout
-      [0.32, 0.25], [0.36, 0.24], [0.38, 0.26], [0.36, 0.28],
-      // Top head
-      [0.25, 0.32], [0.22, 0.38], [0.2, 0.42], [0.18, 0.46],
-      // Horns
-      [0.22, 0.24], [0.2, 0.2], [0.24, 0.22],
-      [0.28, 0.22], [0.3, 0.18], [0.32, 0.2],
-      // Neck body
-      [0.35, 0.35], [0.42, 0.38], [0.5, 0.4], [0.58, 0.42], [0.65, 0.44],
-      [0.72, 0.46], [0.78, 0.48], [0.82, 0.5], [0.85, 0.52],
-      // Belly
-      [0.85, 0.55], [0.82, 0.58], [0.75, 0.56], [0.68, 0.54], [0.6, 0.52],
-      [0.52, 0.5], [0.45, 0.48], [0.38, 0.46],
-      // Back to head
-      [0.3, 0.44], [0.25, 0.48], [0.2, 0.52], [0.15, 0.5],
-      // Tail
-      [0.88, 0.55], [0.92, 0.6], [0.95, 0.65], [0.98, 0.7], [0.95, 0.72],
-      [0.9, 0.68], [0.85, 0.62],
-      // Front legs
-      [0.4, 0.5], [0.38, 0.55], [0.35, 0.6], [0.38, 0.62], [0.42, 0.58],
-      [0.45, 0.52], [0.48, 0.48],
-      [0.55, 0.52], [0.52, 0.58], [0.5, 0.62], [0.52, 0.65], [0.56, 0.6],
-      [0.6, 0.55], [0.62, 0.5],
-      // Back legs
-      [0.75, 0.54], [0.72, 0.6], [0.7, 0.65], [0.72, 0.68], [0.76, 0.62],
-      [0.8, 0.56],
-      // Beard/whiskers
-      [0.36, 0.26], [0.33, 0.22], [0.35, 0.28],
-      [0.38, 0.24], [0.4, 0.2], [0.4, 0.28]
-    ];
-    
-    // Dragon colors - jade, gold, crimson
-    const colors = [
-      [0,220,180],    // jade
-      [0,255,200],   // mint
-      [255,215,0],   // gold
-      [255,140,0],   // orange
-      [220,60,60],   // ruby
-      [180,40,180],  // amethyst
-      [100,200,255]  // sapphire
-    ];
-    
-    let particles = [];
+    // Chinese dragon body points (long serpent)
+    const dragon = [];
     
     function setup() {
       createCanvas(windowWidth, windowHeight);
-      for (let i = 800; i--;) {
-        const pt = random(dragon);
-        particles.push({
-          x: pt[0] * width + random(-40, 40),
-          y: pt[1] * height + random(-40, 40),
-          vx: random(-0.5, 0.5),
-          vy: random(-0.5, 0.5),
-          size: random(2, 8),
-          col: random(colors),
-          phase: random(TWO_PI),
-          speed: random(0.5, 1.5)
-        });
+      
+      // Build long dragon body curve
+      for (let i = 0; i < 60; i++) {
+        const progress = i / 60;
+        // S-curve path across screen
+        let x = 0.08 + progress * 0.85;
+        let y = 0.5 + Math.sin(progress * Math.PI * 3) * 0.25;
+        
+        // Add some variation
+        y += Math.sin(progress * Math.PI * 7) * 0.05;
+        
+        dragon.push([x, y]);
       }
     }
     
     function draw() {
-      // Deep space fade
+      // Dark fade with trails
+      background(5, 5, 16);
       noStroke();
-      fill(10,10,21, 25);
+      fill(5, 5, 16, 30);
       rect(0, 0, width, height);
       
-      t += 0.015;
+      t += 0.02;
       
-      // Draw dragon glow silhouette
-      fill(30,40,80, 15);
-      beginShape();
-      for (let pt of dragon) {
-        vertex(pt[0] * width, pt[1] * height);
-      }
-      endShape(CLOSE);
-      
-      // Particles flow
-      for (let p of particles) {
-        // Find nearest point on dragon for attraction
-        let bx = 0, by = 0, minDist = Infinity;
-        for (let pt of dragon) {
-          const px = pt[0] * width - p.x;
-          const py = pt[1] * height - p.y;
-          const d = px*px + py*py;
-          if (d < minDist) {
-            minDist = d;
-            bx = px;
-            by = py;
-          }
+      // Draw dragon glow backbone
+      for (let i = 0; i < dragon.length; i++) {
+        const [bx, by] = dragon[i];
+        const x = bx * width;
+        const y = by * height;
+        
+        // Animated wiggle
+        const wiggle = Math.sin(t * 2 + i * 0.3) * 8;
+        const wx = x + wiggle;
+        const wy = y + Math.cos(t * 1.5 + i * 0.2) * 10;
+        
+        // Body segments with gradient colors
+        const progress = i / dragon.length;
+        
+        // Head colors (jade to gold to red)
+        let r, g, b;
+        if (progress < 0.3) {
+          r = 0; g = 200 + progress * 180; b = 150 + progress * 100;
+        } else if (progress < 0.7) {
+          r = (progress - 0.3) * 600; g = 255; b = 100 - (progress - 0.3) * 150;
+        } else {
+          r = 200 + (progress - 0.7) * 180; g = 100 - (progress - 0.7) * 300; b = 0;
         }
         
-        const angle = atan2(by, bx) + t * p.speed;
-        const dist = sqrt(minDist);
+        // Body glow
+        const size = 12 + Math.sin(t + i * 0.2) * 4;
+        const alpha = 180 + 75 * Math.sin(t * 2 + i * 0.1);
         
-        // Spiral flow around dragon shape
-        p.vx += cos(angle) * 0.25 * (1 + 500/(dist+50));
-        p.vy += sin(angle) * 0.25 * (1 + 500/(dist+50));
-        p.vx += noise(p.x * 0.005, t, p.phase) - 0.5;
-        p.vy += noise(p.y * 0.005, t + 50, p.phase) - 0.5;
+        fill(r, g, b, alpha);
+        ellipse(wx, wy, size, size);
         
-        p.vx *= 0.94;
-        p.vy *= 0.94;
+        // Inner bright core
+        fill(255, 255, 200, alpha * 0.8);
+        ellipse(wx, wy, size * 0.4, size * 0.4);
+      }
+      
+      // Dragon head
+      const head = dragon[Math.floor(dragon.length * 0.85)];
+      const hx = head[0] * width + Math.sin(t * 2) * 8;
+      const hy = head[1] * height;
+      
+      // Head glow
+      fill(255, 200, 50, 200);
+      ellipse(hx, hy, 35, 35);
+      fill(255, 255, 220, 250);
+      ellipse(hx, hy, 20, 20);
+      
+      // Eyes
+      fill(255, 255, 0);
+      ellipse(hx - 5, hy - 3, 4, 4);
+      ellipse(hx + 5, hy - 3, 4, 4);
+      
+      // Whiskers
+      for (let w = 0; w < 3; w++) {
+        const wy1 = hy + 5 + w * 5;
+        const wx1 = hx + 20 + w * 10 + Math.sin(t * 3 + w) * 5;
+        stroke(255, 200, 50, 150);
+        strokeWeight(1);
+        line(hx + 10, wy1, wx1, wy1 + 10);
+      }
+      
+      // Floating particles/scale dust
+      for (let p = 0; p < 30; p++) {
+        const px = (Math.sin(t * 0.5 + p * 1.7) * 0.5 + 0.5) * width;
+        const py = (Math.cos(t * 0.3 + p * 2.3) * 0.3 + 0.5) * height;
+        const ps = 2 + Math.sin(t + p) * 1;
         
-        p.x += p.vx;
-        p.y += p.vy;
-        
-        // Wrap
-        if (p.x < 0) p.x = width;
-        if (p.x > width) p.x = 0;
-        if (p.y < 0) p.y = height;
-        if (p.y > height) p.y = 0;
-        
-        // Glow
-        const glow = 0.4 + 0.6 * sin(t * 4 + p.phase);
-        fill(p.col[0], p.col[1], p.col[2], 220 * glow);
+        fill(100, 255, 200, 100);
         noStroke();
-        ellipse(p.x, p.y, p.size * glow, p.size * glow);
+        ellipse(px, py, ps, ps);
       }
-      
-      // Eyes glow
-      fill(255,255,200, 200 + 55 * sin(t * 5));
-      ellipse(0.24 * width, 0.34 * height, 8, 8);
-      ellipse(0.3 * width, 0.34 * height, 6, 6);
-      
-      // Firebreath effect
-      if (random() > 0.7) {
-        fill(255, random(100, 200), 0, random(100, 200));
-        ellipse(0.38 * width, 0.26 * height, random(3, 8));
-      }
+    }
+    
+    function windowResized() {
+      resizeCanvas(windowWidth, windowHeight);
     }
   </script>
 </body>
