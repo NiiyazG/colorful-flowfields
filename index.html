@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Colorful Flow Field</title>
+  <title>Trilobite Flow</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
-      background: #050508;
+      background: #030308;
       min-height: 100vh;
       overflow: hidden;
     }
@@ -19,16 +19,16 @@
   <script>
     let t = 0, g, s, ox, oy;
     
-    // Rich colorful palette
-    const colors = [
-      [255,107,157], // pink
-      [196,69,105], // dark pink
-      [255,217,61],  // yellow
-      [107,203,119], // green
-      [77,150,255], // blue
-      [0,255,245],  // cyan
-      [160,94,234], // purple
-      [255,159,67]  // orange
+    // Beautiful neon palette
+    const palette = [
+      [255,107,157],  // hot pink
+      [255,87,98],    // coral
+      [255,183,55],   // amber
+      [72,220,111],  // mint
+      [60,180,255],  // sky blue
+      [0,245,240],   // cyan
+      [160,94,234],  // violet
+      [255,130,180]  // rose
     ];
     
     function setup() {
@@ -49,32 +49,37 @@
     }
     
     function draw() {
-      background(5,5,8);
-      g.background(5,5,8, 30); // semi-transparent for trails
+      // Soft fade for trails
+      g.noStroke();
+      g.fill(3,3,8, 25);
+      g.rect(0, 0, g.width, g.height);
+      
       g.loadPixels();
       t += PI / 90;
       
-      for (let i = 40000; i--; ) {
-        const x = i % 200;
-        const y = ~~(i / 200);
-        const k = x/8 - 12.5;
-        const e = y/8 - 12;
+      for (let i = 42000; i--; ) {
+        const x = i % 210;
+        const y = ~~(i / 210);
+        const k = x/8 - 13;
+        const e = y/8 - 13;
         const o = 2 - mag(k, e)/3;
         const d = -5 * abs(sin(k/2) * cos(e * 0.6));
         
-        const px = ~~(((x + e * cos(t) + d * k * sin(d + t)) * 0.7 + k * o + 130) * s);
-        const py = ~~(((y - d * o * 9 + y * e / 19 + d * e * cos(d + t)) * 0.7 + e * o + 150) * s);
+        const px = ~~(((x + e * cos(t) + d * k * sin(d + t)) * 0.72 + k * o + 130) * s);
+        const py = ~~(((y - d * o * 9 + y * e / 19 + d * e * cos(d + t)) * 0.72 + e * o + 150) * s);
         
-        // Color based on position and time
-        const colIdx = floor((x + y + t * 30) / 50) % colors.length;
-        const [r, gr, b] = colors[colIdx];
+        // Color based on flow field
+        const colIdx = floor((abs(d) * 3 + x/20 + t * 2) % palette.length);
+        const [r, gr, b] = palette[colIdx];
+        
+        // Glow effect
+        const glow = 0.7 + 0.3 * sin(t + x/30);
         
         if (px >= 0 && px < g.width && py >= 0 && py < g.height) {
           const idx = (py * g.width + px) * 4;
-          // Blend with existing color for glow effect
-          g.pixels[idx] = min(255, r + g.pixels[idx] * 0.5);
-          g.pixels[idx+1] = min(255, gr + g.pixels[idx+1] * 0.5);
-          g.pixels[idx+2] = min(255, b + g.pixels[idx+2] * 0.5);
+          g.pixels[idx] = min(255, r * glow + g.pixels[idx] * 0.3);
+          g.pixels[idx+1] = min(255, gr * glow + g.pixels[idx+1] * 0.3);
+          g.pixels[idx+2] = min(255, b * glow + g.pixels[idx+2] * 0.3);
           g.pixels[idx+3] = 255;
         }
       }
