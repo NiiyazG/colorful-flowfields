@@ -3,14 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>🐉 Dragon Outline</title>
+  <title>Trilobite Flow</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      background: linear-gradient(180deg, #1a0a2e, #2d1b4e);
-      min-height: 100vh;
-      overflow: hidden;
-    }
+    body { background: #050508; min-height: 100vh; overflow: hidden; }
     canvas { display: block; }
   </style>
 </head>
@@ -22,122 +18,60 @@
     
     function setup() {
       createCanvas(windowWidth, windowHeight);
-      
-      // Dragon outline points (staying close to shape)
       const cx = width / 2;
       const cy = height / 2;
+      const scale = min(width, height) / 500;
       
-      // Head outline
-      for (let i = 0; i < 25; i++) {
-        const angle = (i / 25) * TWO_PI;
+      // Original trilobite formula from the source
+      for (let i = 0; i < 300; i++) {
+        const x = (i % 200) / 8 - 12.5;
+        const y = Math.floor(i / 200) / 8 - 12;
+        
+        // Keep points in trilobite body area
+        const inBody = (x > -8 && x < 8 && y > -8 && y < 8);
+        
+        if (inBody) {
+          particles.push({
+            baseX: cx + x * scale * 1.2,
+            baseY: cy + y * scale * 1.2,
+            x: 0, y: 0,
+            col: [180 + random(-30, 30), 220 + random(-20, 30), 200 + random(-20, 30)],
+            size: random(3, 5),
+            phase: random(Math.PI * 2)
+          });
+        }
+      }
+      
+      // Center line (spine)
+      for (let i = -7; i <= 7; i++) {
         particles.push({
-          baseX: cx + 55 + cos(angle) * 35,
-          baseY: cy - 35 + sin(angle) * 30,
+          baseX: cx + i * scale * 1.2,
+          baseY: cy,
           x: 0, y: 0,
-          col: [100, 220, 180],
-          size: 6,
-          phase: i
+          col: [255, 255, 200],
+          size: 5,
+          phase: 0
         });
       }
       
-      // Snout
-      for (let i = 0; i < 8; i++) {
-        particles.push({
-          baseX: cx + 85 + i * 3,
-          baseY: cy - 20 + sin(i) * 2,
-          x: 0, y: 0,
-          col: [120, 230, 190],
-          size: 5,
-          phase: i
-        });
+      // Segments
+      for (let seg = -6; seg <= 6; seg++) {
+        if (seg !== 0) {
+          const segX = cx + seg * scale * 1.2;
+          for (let ry = -4; ry <= 4; ry++) {
+            particles.push({
+              baseX: segX,
+              baseY: cy + ry * scale * 1.2,
+              x: 0, y: 0,
+              col: [150, 200, 180],
+              size: 4,
+              phase: seg
+            });
+          }
+        }
       }
       
-      // Eyes
-      particles.push({baseX: cx - 15, baseY: cy - 35, x: 0, y: 0, col: [255], size: 8, phase: 0});
-      particles.push({baseX: cx + 15, baseY: cy - 35, x: 0, y: 0, col: [255], size: 8, phase: 0});
-      particles.push({baseX: cx - 15, baseY: cy - 35, x: 0, y: 0, col: [30], size: 4, phase: 1});
-      particles.push({baseX: cx + 15, baseY: cy - 35, x: 0, y: 0, col: [30], size: 4, phase: 1});
-      
-      // Body
-      for (let i = 0; i < 20; i++) {
-        const px = i < 10 ? -50 + i * 10 : -50 + i * 10;
-        const py = sin(i * 0.5) * 15;
-        particles.push({
-          baseX: cx + px,
-          baseY: cy + 20 + py,
-          x: 0, y: 0,
-          col: [100, 220, 180],
-          size: 7,
-          phase: i
-        });
-        // belly
-        particles.push({
-          baseX: cx + px,
-          baseY: cy + 30 + py,
-          x: 0, y: 0,
-          col: [180, 255, 220],
-          size: 5,
-          phase: i + 10
-        });
-      }
-      
-      // Wings
-      for (let i = 0; i < 8; i++) {
-        particles.push({
-          baseX: cx - 55 - i * 5,
-          baseY: cy - 10 + i * 2,
-          x: 0, y: 0,
-          col: [150, 200, 255],
-          size: 5,
-          phase: i
-        });
-        particles.push({
-          baseX: cx + 55 + i * 5,
-          baseY: cy - 10 + i * 2,
-          x: 0, y: 0,
-          col: [150, 200, 255],
-          size: 5,
-          phase: i
-        });
-      }
-      
-      // Tail
-      for (let i = 0; i < 12; i++) {
-        particles.push({
-          baseX: cx - 80 - i * 8,
-          baseY: cy + 45 + sin(i * 0.7) * 10,
-          x: 0, y: 0,
-          col: [120, 200, 180],
-          size: 6 - i * 0.3,
-          phase: i
-        });
-      }
-      
-      // Horns
-      for (let i = 0; i < 5; i++) {
-        particles.push({
-          baseX: cx - 20 - i * 3,
-          baseY: cy - 65 - i * 3,
-          x: 0, y: 0,
-          col: [180, 140, 220],
-          size: 5,
-          phase: i
-        });
-        particles.push({
-          baseX: cx + 20 + i * 3,
-          baseY: cy - 65 - i * 3,
-          x: 0, y: 0,
-          col: [180, 140, 220],
-          size: 5,
-          phase: i
-        });
-      }
-      
-      // Feet
-      particles.push({baseX: cx - 35, baseY: cy + 65, x: 0, y: 0, col: [100], size: 7, phase: 0});
-      particles.push({baseX: cx + 35, baseY: cy + 65, x: 0, y: 0, col: [100], size: 7, phase: 0});
-      
-      // Initialize positions
+      // Initialize
       for (let p of particles) {
         p.x = p.baseX;
         p.y = p.baseY;
@@ -145,53 +79,41 @@
     }
     
     function draw() {
-      background(26, 10, 46, 50);
+      background(5, 5, 8, 25);
       
-      t += 0.03;
-      const bounce = sin(t * 2) * 15;
+      t += Math.PI / 90;
       
-      for (let i = 0; i < particles.length; i++) {
-        const p = particles[i];
+      for (let p of particles) {
+        // Original trilobite math
+        const dx = (p.baseX - width/2) / 1.2 * 8 + 12.5;
+        const dy = (p.baseY - height/2) / 1.2 * 8 + 12;
         
-        // Subtle ripple (stay close to base)
-        const offsetX = sin(t * 2 + p.phase * 0.5) * 3;
-        const offsetY = cos(t * 1.5 + p.phase * 0.3) * 3;
+        const k = dx / 8 - 12.5;
+        const e = dy / 8 - 12;
+        const o = 2 - Math.hypot(k, e) / 3;
+        const d = -5 * Math.abs(Math.sin(k/2) * Math.cos(e * 0.6));
         
-        const targetX = p.baseX + offsetX;
-        const targetY = p.baseY + offsetY + bounce;
+        // Apply flow with small amplitude (stay near base)
+        const offsetX = (e * Math.cos(t) + d * k * Math.sin(d + t)) * 0.7 + k * o + 130 - 130;
+        const offsetY = (-d * o * 9 + dy * e / 19 + d * e * Math.cos(d + t)) * 0.7 + e * o + 150 - 150;
         
-        // Small movement
-        p.x = lerp(p.x, targetX, 0.15);
-        p.y = lerp(p.y, targetY, 0.15);
+        const targetX = p.baseX + offsetX * 0.15;
+        const targetY = p.baseY + offsetY * 0.15;
         
-        // Pulse size
-        const size = p.size * (0.8 + 0.4 * sin(t * 3 + p.phase));
+        p.x = p.x * 0.85 + targetX * 0.15;
+        p.y = p.y * 0.85 + targetY * 0.15;
         
-        // Draw glow
-        fill(p.col[0], p.col[1] || p.col[0], p.col[2] || p.col[0], 150);
-        ellipse(p.x, p.y, size + 2, size + 2);
+        // Draw
+        const phase = Math.sin(t * 2 + p.phase);
+        fill(p.col[0], p.col[1], p.col[2], 200);
+        noStroke();
         
-        // Draw point
-        fill(p.col[0], p.col[1] || p.col[0], p.col[2] || p.col[0], 255);
+        const size = p.size * (0.8 + 0.3 * phase);
         ellipse(p.x, p.y, size, size);
-      }
-      
-      // Connect nearby points (outline effect)
-      stroke(150, 220, 180, 30);
-      strokeWeight(1);
-      for (let i = 0; i < particles.length; i++) {
-        for (let j = i + 1; j < particles.length; j++) {
-          const d = dist(particles[i].x, particles[i].y, particles[j].x, particles[j].y);
-          if (d < 25) {
-            stroke(
-              (particles[i].col[0] + particles[j].col[0]) / 2,
-              (particles[i].col[1] || particles[i].col[0] + particles[j].col[1] || particles[j].col[0]) / 2,
-              (particles[i].col[2] || particles[i].col[0] + particles[j].col[2] || particles[j].col[0]) / 2,
-              200 / d
-            );
-            line(particles[i].x, particles[i].y, particles[j].x, particles[j].y);
-          }
-        }
+        
+        // Glow
+        fill(p.col[0], p.col[1], p.col[2], 80);
+        ellipse(p.x, p.y, size + 3, size + 3);
       }
     }
     
