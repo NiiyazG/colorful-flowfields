@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>🐉 Cute Dragon Flow</title>
+  <title>🐉 Dragon Outline</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
@@ -23,125 +23,175 @@
     function setup() {
       createCanvas(windowWidth, windowHeight);
       
-      // Create particles in dragon silhouette
-      // Body
-      for (let i = 0; i < 150; i++) {
-        const angle = random(TWO_PI);
-        const r = random(0, 80);
-        particles.push(createParticle(0, 20, r * cos(angle), r * sin(angle), [100, 220, 180]));
-      }
-      // Head
-      for (let i = 0; i < 80; i++) {
-        const angle = random(TWO_PI);
-        const r = random(0, 35);
-        particles.push(createParticle(0, -35, r * cos(angle), r * sin(angle), [100, 220, 180]));
-      }
-      // Snout
-      for (let i = 0; i < 30; i++) {
-        const angle = random(-0.5, 0.5);
-        const r = random(0, 15);
-        particles.push(createParticle(15, -20, r * cos(angle), r * sin(angle), [120, 230, 190]));
-      }
-      // Eyes
-      for (let i = 0; i < 20; i++) {
-        particles.push(createParticle(-15 + random(-3,3), -35 + random(-3,3), 0, 0, [30, 30, 60]));
-        particles.push(createParticle(15 + random(-3,3), -35 + random(-3,3), 0, 0, [30, 30, 60]));
-        // Eye shine
-        particles.push(createParticle(-17 + random(-2,2), -37 + random(-2,2), 0, 0, [255, 255, 255]));
-        particles.push(createParticle(13 + random(-2,2), -37 + random(-2,2), 0, 0, [255, 255, 255]));
-      }
-      // Blush
-      for (let i = 0; i < 10; i++) {
-        particles.push(createParticle(-28 + random(-4,4), -25 + random(-2,2), 0, 0, [255, 150, 150]));
-        particles.push(createParticle(28 + random(-4,4), -25 + random(-2,2), 0, 0, [255, 150, 150]));
-      }
-      // Horns
-      for (let i = 0; i < 15; i++) {
-        particles.push(createParticle(-20 - i * 2, -60 + i * 2, 0, 0, [180, 140, 220]));
-        particles.push(createParticle(20 + i * 2, -60 + i * 2, 0, 0, [180, 140, 220]));
-      }
-      // Wings
+      // Dragon outline points (staying close to shape)
+      const cx = width / 2;
+      const cy = height / 2;
+      
+      // Head outline
       for (let i = 0; i < 25; i++) {
-        particles.push(createParticle(-35 - i * 3, -10 + i, random(-2, 2), random(-1, 1), [150, 220, 255]));
-        particles.push(createParticle(35 + i * 3, -10 + i, random(-2, 2), random(-1, 1), [150, 220, 255]));
+        const angle = (i / 25) * TWO_PI;
+        particles.push({
+          baseX: cx + 55 + cos(angle) * 35,
+          baseY: cy - 35 + sin(angle) * 30,
+          x: 0, y: 0,
+          col: [100, 220, 180],
+          size: 6,
+          phase: i
+        });
       }
-      // Tail
-      for (let i = 0; i < 40; i++) {
-        particles.push(createParticle(-30 - i * 3, 40 + i * 2, 0, 0, [120, 200, 180]));
+      
+      // Snout
+      for (let i = 0; i < 8; i++) {
+        particles.push({
+          baseX: cx + 85 + i * 3,
+          baseY: cy - 20 + sin(i) * 2,
+          x: 0, y: 0,
+          col: [120, 230, 190],
+          size: 5,
+          phase: i
+        });
       }
-      // Feet
+      
+      // Eyes
+      particles.push({baseX: cx - 15, baseY: cy - 35, x: 0, y: 0, col: [255], size: 8, phase: 0});
+      particles.push({baseX: cx + 15, baseY: cy - 35, x: 0, y: 0, col: [255], size: 8, phase: 0});
+      particles.push({baseX: cx - 15, baseY: cy - 35, x: 0, y: 0, col: [30], size: 4, phase: 1});
+      particles.push({baseX: cx + 15, baseY: cy - 35, x: 0, y: 0, col: [30], size: 4, phase: 1});
+      
+      // Body
       for (let i = 0; i < 20; i++) {
-        particles.push(createParticle(-25, 65, random(-5, 5), random(-2, 2), [100, 200, 170]));
-        particles.push(createParticle(25, 65, random(-5, 5), random(-2, 2), [100, 200, 170]));
+        const px = i < 10 ? -50 + i * 10 : -50 + i * 10;
+        const py = sin(i * 0.5) * 15;
+        particles.push({
+          baseX: cx + px,
+          baseY: cy + 20 + py,
+          x: 0, y: 0,
+          col: [100, 220, 180],
+          size: 7,
+          phase: i
+        });
+        // belly
+        particles.push({
+          baseX: cx + px,
+          baseY: cy + 30 + py,
+          x: 0, y: 0,
+          col: [180, 255, 220],
+          size: 5,
+          phase: i + 10
+        });
       }
-      // Belly
-      for (let i = 0; i < 40; i++) {
-        const angle = random(TWO_PI);
-        const r = random(0, 25);
-        particles.push(createParticle(0, 25, r * cos(angle), r * sin(angle), [180, 255, 220]));
+      
+      // Wings
+      for (let i = 0; i < 8; i++) {
+        particles.push({
+          baseX: cx - 55 - i * 5,
+          baseY: cy - 10 + i * 2,
+          x: 0, y: 0,
+          col: [150, 200, 255],
+          size: 5,
+          phase: i
+        });
+        particles.push({
+          baseX: cx + 55 + i * 5,
+          baseY: cy - 10 + i * 2,
+          x: 0, y: 0,
+          col: [150, 200, 255],
+          size: 5,
+          phase: i
+        });
       }
-    }
-    
-    function createParticle(bx, by, ox, oy, col) {
-      return {
-        baseX: bx,
-        baseY: by,
-        offsetX: ox,
-        offsetY: oy,
-        x: bx + ox,
-        y: by + oy,
-        col: col,
-        size: random(4, 8),
-        phase: random(TWO_PI),
-        vx: random(-0.5, 0.5),
-        vy: random(-0.5, 0.5)
-      };
+      
+      // Tail
+      for (let i = 0; i < 12; i++) {
+        particles.push({
+          baseX: cx - 80 - i * 8,
+          baseY: cy + 45 + sin(i * 0.7) * 10,
+          x: 0, y: 0,
+          col: [120, 200, 180],
+          size: 6 - i * 0.3,
+          phase: i
+        });
+      }
+      
+      // Horns
+      for (let i = 0; i < 5; i++) {
+        particles.push({
+          baseX: cx - 20 - i * 3,
+          baseY: cy - 65 - i * 3,
+          x: 0, y: 0,
+          col: [180, 140, 220],
+          size: 5,
+          phase: i
+        });
+        particles.push({
+          baseX: cx + 20 + i * 3,
+          baseY: cy - 65 - i * 3,
+          x: 0, y: 0,
+          col: [180, 140, 220],
+          size: 5,
+          phase: i
+        });
+      }
+      
+      // Feet
+      particles.push({baseX: cx - 35, baseY: cy + 65, x: 0, y: 0, col: [100], size: 7, phase: 0});
+      particles.push({baseX: cx + 35, baseY: cy + 65, x: 0, y: 0, col: [100], size: 7, phase: 0});
+      
+      // Initialize positions
+      for (let p of particles) {
+        p.x = p.baseX;
+        p.y = p.baseY;
+      }
     }
     
     function draw() {
-      background(26, 10, 46, 40);
+      background(26, 10, 46, 50);
       
       t += 0.03;
       const bounce = sin(t * 2) * 15;
       
-      for (let p of particles) {
-        // Gentle float movement
-        p.vx += noise(p.x * 0.01, t, p.phase) - 0.5;
-        p.vy += noise(p.y * 0.01, t + 100, p.phase) - 0.5;
-        p.vx *= 0.95;
-        p.vy *= 0.95;
+      for (let i = 0; i < particles.length; i++) {
+        const p = particles[i];
         
-        // Return to base with bounce
-        const targetX = (width / 2) + p.baseX + p.offsetX;
-        const targetY = (height / 2) + p.baseY + p.offsetY + bounce;
+        // Subtle ripple (stay close to base)
+        const offsetX = sin(t * 2 + p.phase * 0.5) * 3;
+        const offsetY = cos(t * 1.5 + p.phase * 0.3) * 3;
         
-        p.vx += (targetX - p.x) * 0.02;
-        p.vy += (targetY - p.y) * 0.02;
+        const targetX = p.baseX + offsetX;
+        const targetY = p.baseY + offsetY + bounce;
         
-        p.x += p.vx;
-        p.y += p.vy;
+        // Small movement
+        p.x = lerp(p.x, targetX, 0.15);
+        p.y = lerp(p.y, targetY, 0.15);
         
-        // Pulsing size
+        // Pulse size
         const size = p.size * (0.8 + 0.4 * sin(t * 3 + p.phase));
         
         // Draw glow
-        fill(p.col[0], p.col[1], p.col[2], 180);
-        noStroke();
-        ellipse(p.x, p.y, size + 3, size + 3);
+        fill(p.col[0], p.col[1] || p.col[0], p.col[2] || p.col[0], 150);
+        ellipse(p.x, p.y, size + 2, size + 2);
         
         // Draw point
-        fill(p.col[0], p.col[1], p.col[2], 255);
+        fill(p.col[0], p.col[1] || p.col[0], p.col[2] || p.col[0], 255);
         ellipse(p.x, p.y, size, size);
       }
       
-      // Sparkles around
-      for (let i = 0; i < 8; i++) {
-        const angle = t + i * 0.8;
-        const dist = 120 + sin(t * 2 + i) * 30;
-        const sx = width / 2 + cos(angle) * dist;
-        const sy = height / 2 + sin(angle) * dist + bounce;
-        fill(255, 255, 200, 150 + 100 * sin(t + i));
-        ellipse(sx, sy, 3, 3);
+      // Connect nearby points (outline effect)
+      stroke(150, 220, 180, 30);
+      strokeWeight(1);
+      for (let i = 0; i < particles.length; i++) {
+        for (let j = i + 1; j < particles.length; j++) {
+          const d = dist(particles[i].x, particles[i].y, particles[j].x, particles[j].y);
+          if (d < 25) {
+            stroke(
+              (particles[i].col[0] + particles[j].col[0]) / 2,
+              (particles[i].col[1] || particles[i].col[0] + particles[j].col[1] || particles[j].col[0]) / 2,
+              (particles[i].col[2] || particles[i].col[0] + particles[j].col[2] || particles[j].col[0]) / 2,
+              200 / d
+            );
+            line(particles[i].x, particles[i].y, particles[j].x, particles[j].y);
+          }
+        }
       }
     }
     
